@@ -136,7 +136,11 @@ dist
 .wrangler
 wrangler.toml
 .dev.vars
-pnpm-lock.yaml
+# Keep workspace lockfiles for reproducible CI/Docker builds
+!worker/pnpm-lock.yaml
+!frontend/pnpm-lock.yaml
+!e2e/package-lock.json
+vitepress-docs/pnpm-lock.yaml
 **/.local-data/
 .agents/
 .claude/
