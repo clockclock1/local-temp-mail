@@ -24,6 +24,9 @@
 
 ### Improvements
 
+- docs: |Docker Compose| Switch the default deployment flow to pull prebuilt GHCR images instead of building on the target host, and document both `latest` and pinned Release image tags
+- docs: |Docker Compose| Simplify Compose image selection to `IMAGE_REGISTRY` + `IMAGE_TAG`, add `.env.compose.example`, and keep the deployment path pull-only
+
 ## v1.8.0
 
 ### Features

@@ -1,30 +1,19 @@
-# 本地服务器版临时邮箱系统
+# 本地自托管临时邮箱
 
-这是一个已经改造成“本地服务器优先”的完整项目。
+这是一个彻底脱离 Cloudflare、可独立运行在本地服务器上的临时邮箱系统。
 
-它保留了原项目的大部分 API 与功能形态，但运行方式已经切到本地服务器，不再以 Cloudflare 作为运行前提。
+当前版本保留了原项目的大部分接口前缀与核心能力，同时把运行方式改为本地 HTTP API + 本地 SMTP 接收 + SQLite/JSON 存储。
 
-## 当前默认形态
+## 当前特性
 
 - 本地 HTTP API 服务
 - 本地 SMTP 收件服务
 - 本地 SQLite 数据库
 - 本地 JSON KV 存储
-- 前端静态站
+- 前端静态站点
 - Docker Compose 部署
-- GitHub Actions 全平台自动构建
-- GitHub Actions 多架构 Docker 镜像构建
-
-## 已包含能力
-
-- 临时邮箱创建、收信、删信、发信
-- 地址密码登录
-- 用户系统、角色系统、管理员后台
-- Webhook、自动回复、附件、AI 提取
-- Telegram Bot / Mini App
-- SMTP / IMAP 代理
-- 指定子域邮箱与随机子域邮箱
-- 根域与多级子域地址匹配
+- GitHub Releases 触发的跨平台自动编译
+- GitHub Releases 触发的 Docker 镜像构建与发布
 
 ## API 保持原样
 
@@ -37,7 +26,7 @@
 - `/telegram/*`
 - `/external/*`
 
-也就是说，前端和第三方调用方不需要因为“脱离 Cloudflare”而重写 API 路径。
+这意味着前端和第三方调用方不需要因为脱离 Cloudflare 而重写 API 路径。
 
 ## 快速开始
 
@@ -66,8 +55,24 @@ corepack pnpm run build
 
 ```bash
 cp worker/.env.local.example worker/.env.local
-docker compose up -d --build
+cp .env.compose.example .env
+docker compose pull
+docker compose up -d
 ```
+
+`docker-compose.yml` 会直接从 GHCR 拉取 GitHub Release 工作流产出的预编译镜像，不会在目标服务器本地执行构建：
+
+- `ghcr.io/clockclock1/local-temp-mail/tempmail-backend:${IMAGE_TAG}`
+- `ghcr.io/clockclock1/local-temp-mail/tempmail-frontend:${IMAGE_TAG}`
+
+默认标签为 `latest`。如果你想固定到某个 Release 版本，可以这样启动：
+
+```bash
+IMAGE_TAG=v0.1.0
+docker compose up -d
+```
+
+也可以把 `IMAGE_TAG=v0.1.0` 写入由 `.env.compose.example` 复制出来的根目录 `.env` 文件中。
 
 默认端口：
 
@@ -87,17 +92,18 @@ docker compose up -d --build
 ## 文档入口
 
 - [DEPLOY_GUIDE.md](./DEPLOY_GUIDE.md)
+- [MAIL_GATEWAY.md](./MAIL_GATEWAY.md)
 - [worker/LOCAL_RUN.md](./worker/LOCAL_RUN.md)
 - [worker/.env.local.example](./worker/.env.local.example)
 
 ## GitHub Actions
 
-已提供两条新的工作流：
+仓库当前包含两个基于 Release 发布触发的工作流：
 
-- [ci-build.yml](./.github/workflows/ci-build.yml)
-  在 Windows / macOS / Linux 上自动安装、构建和冒烟测试
-- [docker-images.yml](./.github/workflows/docker-images.yml)
-  自动构建并推送多架构 Docker 镜像
+- `.github/workflows/ci-build.yml`
+  负责 Windows / macOS / Linux 跨平台验证、构建，并把产物上传到 GitHub Release
+- `.github/workflows/docker-images.yml`
+  负责构建并发布多架构 Docker 镜像，同时把 OCI 归档挂到 GitHub Release
 
 ## 参考来源
 

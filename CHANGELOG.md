@@ -24,6 +24,9 @@
 
 ### Improvements
 
+- docs: |Docker Compose| 默认改为直接拉取 GHCR 预编译镜像部署，不再在目标服务器本地执行 `docker compose build`，并补充 `latest` 与固定 Release 标签的使用说明
+- docs: |Docker Compose| 将 Compose 镜像选择统一为 `IMAGE_REGISTRY` + `IMAGE_TAG`，新增 `.env.compose.example`，并保持部署流程为纯拉取预编译镜像
+
 ## v1.8.0
 
 ### Features

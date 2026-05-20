@@ -1,8 +1,9 @@
+# Pull prebuilt Release images from GHCR.
+# This Compose file does not build images on the target host.
 services:
   backend:
-    build:
-      context: .
-      dockerfile: docker/backend.Dockerfile
+    image: ${IMAGE_REGISTRY:-ghcr.io/clockclock1/local-temp-mail}/tempmail-backend:${IMAGE_TAG:-latest}
+    pull_policy: always
     container_name: tempmail-backend
     env_file:
       - worker/.env.local
@@ -14,11 +15,8 @@ services:
     restart: unless-stopped
 
   frontend:
-    build:
-      context: .
-      dockerfile: docker/frontend.Dockerfile
-      args:
-        VITE_API_BASE:
+    image: ${IMAGE_REGISTRY:-ghcr.io/clockclock1/local-temp-mail}/tempmail-frontend:${IMAGE_TAG:-latest}
+    pull_policy: always
     container_name: tempmail-frontend
     depends_on:
       - backend
