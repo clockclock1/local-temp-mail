@@ -1,17 +1,16 @@
-name: CI Build
+name: Release Build
 
 on:
-  push:
-    branches:
-      - main
-      - master
-  pull_request:
-  workflow_dispatch:
+  release:
+    types:
+      - published
 
 jobs:
-  local-build:
-    name: Build on ${{ matrix.os }}
+  verify:
+    name: Verify on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:
@@ -54,10 +53,13 @@ jobs:
           VITE_API_BASE: ""
         run: corepack pnpm run build
 
-  artifact-check:
-    name: Upload Build Artifacts
+  release-assets:
+    name: Build Release Assets
     runs-on: ubuntu-latest
-    needs: local-build
+    permissions:
+      contents: write
+    needs: verify
+
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -70,6 +72,17 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
+      - name: Install backend deps
+        working-directory: worker
+        run: corepack pnpm install --frozen-lockfile
+
+      - name: Prepare backend env
+        run: cp worker/.env.local.example worker/.env.local
+
+      - name: Backend smoke test
+        working-directory: worker
+        run: corepack pnpm run local:smoke
+
       - name: Install frontend deps
         working-directory: frontend
         run: corepack pnpm install --frozen-lockfile
@@ -80,8 +93,21 @@ jobs:
           VITE_API_BASE: ""
         run: corepack pnpm run build
 
-      - name: Upload frontend artifact
-        uses: actions/upload-artifact@v4
+      - name: Pack release assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p release-assets
+          zip -r release-assets/local-temp-mail-frontend-dist.zip frontend/dist
+          tar -czf release-assets/local-temp-mail-server-bundle.tar.gz \
+            README.md DEPLOY_GUIDE.md MAIL_GATEWAY.md docker-compose.yml \
+            docker db deploy worker frontend/.env.example worker/.env.local.example
+          sha256sum release-assets/* > release-assets/SHA256SUMS.txt
+
+      - name: Upload assets to release
+        uses: softprops/action-gh-release@v2
         with:
-          name: frontend-dist
-          path: frontend/dist
+          files: |
+            release-assets/local-temp-mail-frontend-dist.zip
+            release-assets/local-temp-mail-server-bundle.tar.gz
+            release-assets/SHA256SUMS.txt
