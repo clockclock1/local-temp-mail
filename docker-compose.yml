@@ -1,0 +1,30 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend.Dockerfile
+    container_name: tempmail-backend
+    env_file:
+      - worker/.env.local
+    volumes:
+      - backend_data:/app/worker/.local-data
+    ports:
+      - "8787:8787"
+      - "2525:2525"
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend.Dockerfile
+      args:
+        VITE_API_BASE:
+    container_name: tempmail-frontend
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+
+volumes:
+  backend_data:

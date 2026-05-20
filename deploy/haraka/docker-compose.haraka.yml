@@ -1,0 +1,11 @@
+services:
+  haraka:
+    image: haraka/haraka:latest
+    container_name: local-temp-mail-haraka
+    restart: unless-stopped
+    ports:
+      - "25:25"
+    volumes:
+      - ./plugins:/app/config/plugins
+      - ./smtp_forward.ini:/app/config/smtp_forward.ini
+      - ./host_list:/app/config/host_list

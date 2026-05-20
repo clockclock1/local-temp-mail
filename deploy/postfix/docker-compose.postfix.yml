@@ -1,0 +1,10 @@
+services:
+  postfix:
+    image: boky/postfix:latest
+    container_name: local-temp-mail-postfix
+    restart: unless-stopped
+    ports:
+      - "25:25"
+    environment:
+      ALLOWED_SENDER_DOMAINS: example.com
+      RELAYHOST: "[host.docker.internal]:2525"

@@ -1,0 +1,23 @@
+myhostname = mail.example.com
+myorigin = /etc/mailname
+smtpd_banner = $myhostname ESMTP
+biff = no
+append_dot_mydomain = no
+readme_directory = no
+compatibility_level = 3.6
+
+# 接收你自己的域名
+mydestination =
+virtual_alias_domains = example.com, team.example.com
+relay_domains = example.com, team.example.com
+
+# 把邮件统一转给本项目 SMTP 收件器
+relayhost = [127.0.0.1]:2525
+
+# 允许收件
+smtpd_recipient_restrictions =
+    permit_mynetworks,
+    reject_unauth_destination
+
+inet_interfaces = all
+inet_protocols = ipv4
