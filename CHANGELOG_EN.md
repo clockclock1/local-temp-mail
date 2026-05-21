@@ -15,6 +15,8 @@
 
 ### Bug Fixes
 
+- fix: |Docker Nginx| Serve frontend SPA routes like `/admin` and `/:lang/admin` directly from `index.html` instead of proxying them to the backend API, avoiding browser-visible 503 errors on the admin page
+- fix: |SMTP| Run the local smoke test through the real SMTP listener and add clearer SMTP connection / recipient / delivery logs for diagnosing public inbound mail issues
 - fix: |Local Runtime| Restore missing local-server env bindings for `ANNOUNCEMENT`, `ALWAYS_SHOW_ANNOUNCEMENT`, `ADDRESS_CHECK_REGEX`, `ADDRESS_REGEX`, `MIN_ADDRESS_LEN`, `MAX_ADDRESS_LEN`, `ENABLE_GLOBAL_TURNSTILE_CHECK`, and related options so values set in `.env.local` actually take effect
 - fix: |Admin| Hash address passwords in the frontend before admin reset requests, and make the backend accept and store only the hash instead of plaintext
 - fix: |Address| Stop returning stored address password hashes from the admin address list and user bound-address list APIs to avoid exposing sensitive fields

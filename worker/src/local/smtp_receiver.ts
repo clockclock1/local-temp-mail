@@ -4,14 +4,46 @@ import { createLocalBindings, loadLocalEnvFiles } from "./env.js";
 import { createExecutionContext, createRawReadableStream } from "./shared.js";
 import { workerEmail } from "../worker.js";
 
+const getFirstConfiguredDomain = (bindings: Bindings): string | undefined => {
+    const value = bindings.DOMAINS;
+    if (Array.isArray(value)) {
+        return value.find(Boolean);
+    }
+    if (typeof value === "string") {
+        try {
+            const parsed = JSON.parse(value) as string[];
+            return parsed.find(Boolean);
+        } catch {
+            return undefined;
+        }
+    }
+    return undefined;
+}
+
 export const startLocalSmtpReceiver = async () => {
     await loadLocalEnvFiles();
     const bindings = await createLocalBindings();
     const port = Number(process.env.LOCAL_SMTP_PORT || 2525);
+    const smtpHostname = process.env.LOCAL_SMTP_HOSTNAME
+        || getFirstConfiguredDomain(bindings)
+        || "localhost";
 
     const server = new SMTPServer({
+        name: smtpHostname,
         disabledCommands: ["AUTH"],
         authOptional: true,
+        onConnect(session, callback) {
+            console.log(`[smtp] connect from=${session.remoteAddress}`);
+            callback();
+        },
+        onMailFrom(address, session, callback) {
+            console.log(`[smtp] mail_from=${address.address} ip=${session.remoteAddress}`);
+            callback();
+        },
+        onRcptTo(address, session, callback) {
+            console.log(`[smtp] rcpt_to=${address.address} ip=${session.remoteAddress}`);
+            callback();
+        },
         onData(stream: NodeJS.ReadableStream, session: any, callback: (error?: Error | null) => void) {
             const chunks: Buffer[] = [];
             stream.on("data", (chunk: Buffer | Uint8Array | string) => chunks.push(Buffer.from(chunk)));
@@ -49,8 +81,10 @@ export const startLocalSmtpReceiver = async () => {
                             reply: async () => ({ messageId: "" }),
                         } as ForwardableEmailMessage, bindings, createExecutionContext());
                     }
+                    console.log(`[smtp] accepted from=${session.envelope.mailFrom.address || "unknown@localhost"} to=${recipients.join(",")} size=${rawBuffer.byteLength}`);
                     callback();
                 } catch (error) {
+                    console.error("[smtp] delivery failed", error);
                     callback(error as Error);
                 }
             });
@@ -58,7 +92,7 @@ export const startLocalSmtpReceiver = async () => {
     });
 
     server.listen(port, "0.0.0.0", () => {
-        console.log(`Local SMTP receiver listening on 0.0.0.0:${port}`);
+        console.log(`Local SMTP receiver listening on 0.0.0.0:${port} hostname=${smtpHostname}`);
     });
 
     return server;
