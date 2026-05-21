@@ -26,6 +26,7 @@
 
 - docs: |Docker Compose| Switch the default deployment flow to pull prebuilt GHCR images instead of building on the target host, and document both `latest` and pinned Release image tags
 - docs: |Docker Compose| Simplify Compose image selection to `IMAGE_REGISTRY` + `IMAGE_TAG`, add `.env.compose.example`, and keep the deployment path pull-only
+- fix: |Docker Compose| Expose host `25 -> 2525` by default so MX-based public SMTP delivery does not fail just because only port `2525` was published
 
 ## v1.8.0
 

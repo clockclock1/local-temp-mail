@@ -38,6 +38,7 @@ export const useGlobalState = createGlobalState(
             isS3Enabled: false,
             enableSendMail: false,
             showGithub: true,
+            hasAdminPasswords: false,
             disableAdminPasswordCheck: false,
             enableAddressPassword: false,
             enableAgentEmailInfo: false,
@@ -126,6 +127,10 @@ export const useGlobalState = createGlobalState(
             || userSettings.value.is_admin
             || openSettings.value.disableAdminPasswordCheck
         );
+        const showAdminEntry = computed(() =>
+            showAdminPage.value
+            || openSettings.value.hasAdminPasswords
+        );
         const telegramApp = ref(window.Telegram?.WebApp || {});
         const isTelegram = ref(!!window.Telegram?.WebApp?.initData);
         const _oauth2StateSession = useSessionStorage('userOauth2SessionState', '');
@@ -175,6 +180,7 @@ export const useGlobalState = createGlobalState(
             telegramApp,
             isTelegram,
             showAdminPage,
+            showAdminEntry,
             userOauth2SessionState,
             userOauth2SessionClientID,
             useSimpleIndex,

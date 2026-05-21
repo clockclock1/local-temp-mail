@@ -11,7 +11,8 @@ services:
       - backend_data:/app/worker/.local-data
     ports:
       - "8787:8787"
-      - "2525:2525"
+      - "${SMTP_HOST_PORT:-25}:2525"
+      - "${SMTP_LOCAL_PORT:-2525}:2525"
     restart: unless-stopped
 
   frontend:

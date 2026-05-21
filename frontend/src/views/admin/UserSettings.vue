@@ -45,6 +45,7 @@ const save = async () => {
             method: 'POST',
             body: JSON.stringify(userSettings.value)
         })
+        await api.getUserOpenSettings(message)
         message.success(t('successTip'))
     } catch (error) {
         message.error(error.message || "error");

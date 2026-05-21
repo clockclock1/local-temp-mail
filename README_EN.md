@@ -74,11 +74,18 @@ docker compose up -d
 
 You can also put `IMAGE_TAG=v0.1.0` into the root `.env` file copied from `.env.compose.example`.
 
+By default, Compose exposes both:
+
+- host `25` -> container `2525` for public SMTP / MX delivery
+- host `2525` -> container `2525` for local testing or an upstream mail gateway
+
+If your server cannot accept inbound port `25`, use the Postfix / Haraka gateway approach described in [MAIL_GATEWAY.md](./MAIL_GATEWAY.md).
+
 Default ports:
 
 - Frontend: `8080`
 - Backend API: `8787`
-- SMTP receiving: `2525`
+- SMTP receiving: host `25` (public) and `2525` (local) both forward to container `2525`
 
 ## Important Paths
 

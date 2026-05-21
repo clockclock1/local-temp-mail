@@ -23,7 +23,7 @@ const message = useMessage()
 const notification = useNotification()
 
 const {
-    toggleDark, isDark, isTelegram, showAdminPage,
+    toggleDark, isDark, isTelegram, showAdminPage, showAdminEntry,
     showAuth, auth, loading, openSettings, preferredLocale, userSettings
 } = useGlobalState()
 const route = useRoute()
@@ -164,7 +164,7 @@ const menuOptions = computed(() => [
                 icon: () => h(NIcon, { component: AdminPanelSettingsFilled }),
             }
         ),
-        show: showAdminPage.value,
+        show: showAdminEntry.value,
         key: "admin"
     },
     {
