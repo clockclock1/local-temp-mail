@@ -15,6 +15,7 @@
 
 ### Bug Fixes
 
+- fix: |Local Runtime| Restore missing local-server env bindings for `ANNOUNCEMENT`, `ALWAYS_SHOW_ANNOUNCEMENT`, `ADDRESS_CHECK_REGEX`, `ADDRESS_REGEX`, `MIN_ADDRESS_LEN`, `MAX_ADDRESS_LEN`, `ENABLE_GLOBAL_TURNSTILE_CHECK`, and related options so values set in `.env.local` actually take effect
 - fix: |Admin| Hash address passwords in the frontend before admin reset requests, and make the backend accept and store only the hash instead of plaintext
 - fix: |Address| Stop returning stored address password hashes from the admin address list and user bound-address list APIs to avoid exposing sensitive fields
 - fix: |Address| Normalize whitespace and casing for configured domains, inbound recipient domains, and prefixes across `DOMAINS`, `DEFAULT_DOMAINS`, `USER_ROLES.domains`, random subdomains, forwarding rules, SMTP, and `SEND_MAIL` domain matching, preserve blank-domain catch-all forwarding rules, and clarify that empty `DEFAULT_DOMAINS` / role domains fall back to `DOMAINS`, to avoid create, receive, forward, or send failures caused by mixed-case configuration or inbound recipient domains (issue #926)
