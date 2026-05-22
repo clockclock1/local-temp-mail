@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+
 import { SMTPServer } from "smtp-server";
 
 import { createLocalBindings, loadLocalEnvFiles } from "./env.js";
@@ -20,6 +22,38 @@ const getFirstConfiguredDomain = (bindings: Bindings): string | undefined => {
     return undefined;
 }
 
+const loadTlsOptions = async () => {
+    const keyPath = process.env.LOCAL_SMTP_TLS_KEY_PATH?.trim();
+    const certPath = process.env.LOCAL_SMTP_TLS_CERT_PATH?.trim();
+
+    if (!keyPath && !certPath) {
+        return {
+            hideSTARTTLS: true,
+            tlsEnabled: false,
+        };
+    }
+
+    if (!keyPath || !certPath) {
+        console.warn("[smtp] TLS disabled because only one of LOCAL_SMTP_TLS_KEY_PATH / LOCAL_SMTP_TLS_CERT_PATH is set");
+        return {
+            hideSTARTTLS: true,
+            tlsEnabled: false,
+        };
+    }
+
+    const [key, cert] = await Promise.all([
+        readFile(keyPath, "utf-8"),
+        readFile(certPath, "utf-8"),
+    ]);
+
+    return {
+        hideSTARTTLS: false,
+        key,
+        cert,
+        tlsEnabled: true,
+    };
+}
+
 export const startLocalSmtpReceiver = async () => {
     await loadLocalEnvFiles();
     const bindings = await createLocalBindings();
@@ -27,11 +61,13 @@ export const startLocalSmtpReceiver = async () => {
     const smtpHostname = process.env.LOCAL_SMTP_HOSTNAME
         || getFirstConfiguredDomain(bindings)
         || "localhost";
+    const tlsOptions = await loadTlsOptions();
 
     const server = new SMTPServer({
         name: smtpHostname,
         disabledCommands: ["AUTH"],
         authOptional: true,
+        ...tlsOptions,
         onConnect(session, callback) {
             console.log(`[smtp] connect from=${session.remoteAddress}`);
             callback();
@@ -92,7 +128,9 @@ export const startLocalSmtpReceiver = async () => {
     });
 
     server.listen(port, "0.0.0.0", () => {
-        console.log(`Local SMTP receiver listening on 0.0.0.0:${port} hostname=${smtpHostname}`);
+        console.log(
+            `Local SMTP receiver listening on 0.0.0.0:${port} hostname=${smtpHostname} starttls=${tlsOptions.tlsEnabled ? "enabled" : "disabled"}`
+        );
     });
 
     return server;
