@@ -13,6 +13,40 @@ const {
     showAuth, adminAuth, showAdminAuth, userJwt
 } = useGlobalState();
 
+const removeCurrentJwtFromLocalCache = () => {
+    if (typeof window === 'undefined') return;
+    const currentJwt = typeof jwt.value === 'string' ? jwt.value : '';
+    if (!currentJwt) return;
+
+    try {
+        const raw = window.localStorage.getItem('LocalAddressCache');
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (!Array.isArray(parsed)) return;
+        const next = parsed.filter((item) => item !== currentJwt);
+        window.localStorage.setItem('LocalAddressCache', JSON.stringify(next));
+    } catch (error) {
+        console.warn('[api] failed to prune stale LocalAddressCache entry', error);
+    }
+}
+
+const resetInvalidAddressCredential = () => {
+    removeCurrentJwtFromLocalCache();
+    jwt.value = '';
+    settings.value = {
+        fetched: true,
+        send_balance: 0,
+        address: '',
+        auto_reply: {
+            subject: '',
+            message: '',
+            enabled: false,
+            source_prefix: '',
+            name: '',
+        }
+    };
+}
+
 const instance = axios.create({
     baseURL: API_BASE,
     timeout: 30000,
@@ -149,6 +183,13 @@ const getSettings = async () => {
             auto_reply: res["auto_reply"],
             send_balance: res["send_balance"],
         };
+    } catch (error) {
+        const msg = error?.message || "";
+        if (msg.includes("[401]") || msg.includes("Code 401") || msg.includes("Invalid address credential")) {
+            resetInvalidAddressCredential();
+            return "";
+        }
+        throw error;
     } finally {
         settings.value.fetched = true;
     }

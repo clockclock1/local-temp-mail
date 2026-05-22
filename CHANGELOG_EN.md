@@ -17,6 +17,7 @@
 
 - fix: |Docker Nginx| Disable absolute redirects and handle `/admin`, `/user`, and `/telegram_mail` with exact SPA entry routes so refreshing pages on mapped ports such as `:8080` no longer redirects to a port-less `/admin/`
 - fix: |Docker Nginx| Serve frontend SPA routes like `/admin` and `/:lang/admin` directly from `index.html` instead of proxying them to the backend API, avoiding browser-visible 503 errors on the admin page
+- fix: |Address JWT| Automatically clear stale locally cached address JWTs after backend `401 Invalid address credential` responses, preventing the UI from getting stuck on old mailbox tokens after `JWT_SECRET` changes or redeployments
 - fix: |SMTP| Stop advertising the smtp-server package's expired default STARTTLS certificate unless `LOCAL_SMTP_TLS_KEY_PATH` and `LOCAL_SMTP_TLS_CERT_PATH` are explicitly configured, preventing inbound MTAs from aborting after connect on self-hosted deployments
 - fix: |SMTP| Run the local smoke test through the real SMTP listener and add clearer SMTP connection / recipient / delivery logs for diagnosing public inbound mail issues
 - fix: |Local Runtime| Restore missing local-server env bindings for `ANNOUNCEMENT`, `ALWAYS_SHOW_ANNOUNCEMENT`, `ADDRESS_CHECK_REGEX`, `ADDRESS_REGEX`, `MIN_ADDRESS_LEN`, `MAX_ADDRESS_LEN`, `ENABLE_GLOBAL_TURNSTILE_CHECK`, and related options so values set in `.env.local` actually take effect
