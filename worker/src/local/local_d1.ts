@@ -26,7 +26,7 @@ class LocalD1PreparedStatement {
     }
 
     async first<T = Record<string, unknown>>(columnName?: string): Promise<T | null> {
-        const row = this.statement().get(...this.params as []) as Record<string, unknown> | undefined;
+        const row = this.statement().get(...this.normalizedParams() as []) as Record<string, unknown> | undefined;
         if (!row) {
             return null;
         }
@@ -37,12 +37,12 @@ class LocalD1PreparedStatement {
     }
 
     async all<T = Record<string, unknown>>(): Promise<{ results: T[] }> {
-        const results = this.statement().all(...this.params as []) as T[];
+        const results = this.statement().all(...this.normalizedParams() as []) as T[];
         return { results };
     }
 
     async run(): Promise<RunResult> {
-        const result = this.statement().run(...this.params as []) as {
+        const result = this.statement().run(...this.normalizedParams() as []) as {
             changes: number;
             lastInsertRowid?: number | bigint;
         };
@@ -56,7 +56,7 @@ class LocalD1PreparedStatement {
     }
 
     executeSync(): RunResult {
-        const result = this.statement().run(...this.params as []) as {
+        const result = this.statement().run(...this.normalizedParams() as []) as {
             changes: number;
             lastInsertRowid?: number | bigint;
         };
@@ -72,7 +72,21 @@ class LocalD1PreparedStatement {
     private statement() {
         return this.db.prepare(this.sql);
     }
+
+    private normalizedParams(): unknown[] {
+        return this.params.map((param) => normalizeSqliteParam(param));
+    }
 }
+
+const normalizeSqliteParam = (param: unknown): unknown => {
+    if (param instanceof ArrayBuffer) {
+        return Buffer.from(param);
+    }
+    if (ArrayBuffer.isView(param)) {
+        return Buffer.from(param.buffer, param.byteOffset, param.byteLength);
+    }
+    return param;
+};
 
 export class LocalD1Database {
     private readonly db: DatabaseSync;

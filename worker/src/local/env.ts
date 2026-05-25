@@ -78,7 +78,7 @@ export const createLocalBindings = async (): Promise<Bindings> => {
         ENABLE_WEBHOOK: process.env.ENABLE_WEBHOOK || "false",
         ENABLE_ADDRESS_PASSWORD: process.env.ENABLE_ADDRESS_PASSWORD || "true",
         ENABLE_AGENT_EMAIL_INFO: process.env.ENABLE_AGENT_EMAIL_INFO || "false",
-        ENABLE_CREATE_ADDRESS_SUBDOMAIN_MATCH: process.env.ENABLE_CREATE_ADDRESS_SUBDOMAIN_MATCH || "true",
+        ENABLE_CREATE_ADDRESS_SUBDOMAIN_MATCH: process.env.ENABLE_CREATE_ADDRESS_SUBDOMAIN_MATCH,
         RANDOM_SUBDOMAIN_DOMAINS: process.env.RANDOM_SUBDOMAIN_DOMAINS || defaultJsonArray([]),
         RANDOM_SUBDOMAIN_LENGTH: process.env.RANDOM_SUBDOMAIN_LENGTH || "8",
         DISABLE_CUSTOM_ADDRESS_NAME: process.env.DISABLE_CUSTOM_ADDRESS_NAME || "false",

@@ -9,5 +9,6 @@ COPY e2e/package.json e2e/package-lock.json ./
 RUN npm ci
 
 COPY e2e/ .
+RUN chmod +x /app/e2e/scripts/docker-entrypoint.sh /app/e2e/scripts/smtp-tls-entrypoint.sh
 
 ENTRYPOINT ["/app/e2e/scripts/docker-entrypoint.sh"]

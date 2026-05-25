@@ -36,6 +36,8 @@ test.describe('Passkey Browser Flow', () => {
   });
 
   test('register passkey, then login with passkey', async ({ page, context }) => {
+    test.setTimeout(90_000);
+
     // Set up virtual authenticator via CDP
     const cdp = await context.newCDPSession(page);
     await cdp.send('WebAuthn.enable');
@@ -105,10 +107,18 @@ test.describe('Passkey Browser Flow', () => {
 
       // Virtual authenticator handles the WebAuthn ceremony automatically
       // Wait for login to complete — user email should appear
-      await expect(page.getByText(TEST_USER_EMAIL)).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByText(TEST_USER_EMAIL)).toBeVisible({ timeout: 30_000 });
     } finally {
-      await cdp.send('WebAuthn.removeVirtualAuthenticator', { authenticatorId });
-      await cdp.detach();
+      try {
+        await cdp.send('WebAuthn.removeVirtualAuthenticator', { authenticatorId });
+      } catch {
+        // Ignore cleanup failures if the page/context has already been torn down.
+      }
+      try {
+        await cdp.detach();
+      } catch {
+        // Ignore cleanup failures if the page/context has already been torn down.
+      }
     }
   });
 });

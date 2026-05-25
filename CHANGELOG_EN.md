@@ -15,6 +15,10 @@
 
 ### Bug Fixes
 
+- fix: |E2E| Switch the E2E worker containers to the local `pnpm run local:all` runtime, add `.env.local` fixtures, and fix the `e2e-runner` entrypoint permissions, Docker Compose service wiring, and local SMTP/IMAP proxy envs so the full Playwright suite can run in local Docker
+- fix: |Local Runtime| Stop forcing `ENABLE_CREATE_ADDRESS_SUBDOMAIN_MATCH` to `true` in local mode so an unset value falls back to the same behavior as the production Worker runtime
+- fix: |Local SQLite| Add `ArrayBuffer` / typed-array to `Buffer` normalization in the local D1 adapter so `raw_blob` writes succeed when `ENABLE_MAIL_GZIP=true`, restoring gzip mail storage and readback tests
+- fix: |E2E Browser| Pin the local Docker E2E fixtures to English by default and harden the browser passkey flow timeouts/cleanup, preventing locale-based assertion drift and flaky WebAuthn timeouts
 - fix: |Docker Nginx| Disable absolute redirects and handle `/admin`, `/user`, and `/telegram_mail` with exact SPA entry routes so refreshing pages on mapped ports such as `:8080` no longer redirects to a port-less `/admin/`
 - fix: |Docker Nginx| Serve frontend SPA routes like `/admin` and `/:lang/admin` directly from `index.html` instead of proxying them to the backend API, avoiding browser-visible 503 errors on the admin page
 - fix: |Address JWT| Automatically clear stale locally cached address JWTs after backend `401 Invalid address credential` responses, preventing the UI from getting stuck on old mailbox tokens after `JWT_SECRET` changes or redeployments

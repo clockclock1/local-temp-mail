@@ -20,8 +20,8 @@ npm run test:down
 
 `npm test` runs `docker compose up --build`, which:
 1. Starts **Mailpit** (SMTP on :1025, HTTP API on :8025)
-2. Builds and starts the **Worker** (wrangler dev on :8787)
-3. Builds and starts the **Frontend** (vite dev on :5173)
+2. Builds and starts the **local backend** (`pnpm run local:all`) for the default and variant test environments from `.env.local` fixture files under `e2e/fixtures/`
+3. Builds and starts the **Frontend** (Vite over HTTPS on :5173)
 4. Builds and runs the **E2E runner** (Playwright), which waits for services, initializes the DB, and runs all tests
 
 The exit code reflects the test result.
@@ -39,7 +39,7 @@ The exit code reflects the test result.
 |---------|-----------|------|---------|
 | Mailpit SMTP | `mailpit` | 1025 | Captures outgoing emails |
 | Mailpit HTTP | `mailpit` | 8025 | API to verify captured emails |
-| Worker | `worker` | 8787 | Backend API with E2E config |
+| Backend | `worker` | 8787 | Local HTTP API + local SMTP receiver with E2E config |
 | Frontend | `frontend` | 5173 | Vue frontend dev server |
 
 ## Test Results
@@ -50,8 +50,11 @@ Test results and HTML reports are exported via volumes:
 
 ## Configuration
 
-The E2E worker uses `fixtures/wrangler.toml.e2e` with:
-- `E2E_TEST_MODE = true` — enables test seed endpoint
-- `DISABLE_ADMIN_PASSWORD_CHECK = true` — allows unauthenticated admin calls
-- `DEFAULT_SEND_BALANCE = 10` — allows sending without admin approval
-- SMTP pointed at Mailpit container (`mailpit:1025`)
+The E2E backend uses `.env.local` fixture variants under `fixtures/` with:
+- `E2E_TEST_MODE=true` — enables test seed endpoints
+- `DISABLE_ADMIN_PASSWORD_CHECK=true` — allows unauthenticated admin calls
+- `DEFAULT_SEND_BALANCE=10` — allows sending without admin approval
+- `DEFAULT_LANG=en` — keeps API and browser assertions deterministic in local Docker
+- `SMTP_CONFIG` and `LOCAL_SENDMAIL_*` pointed at the Mailpit container (`mailpit:1025`)
+
+The frontend test container serves HTTPS with a self-signed certificate so WebAuthn and `crypto.subtle` work during browser tests.
