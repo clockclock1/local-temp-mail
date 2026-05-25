@@ -19,6 +19,7 @@
 - fix: |本地运行时| 修复 `ENABLE_CREATE_ADDRESS_SUBDOMAIN_MATCH` 在本地模式下被强制默认开启的问题，使未配置时保持与 Worker 线上环境一致的“按设置回退”行为
 - fix: |本地 SQLite| 为本地 D1 适配层补充 `ArrayBuffer` / TypedArray 到 `Buffer` 的绑定转换，修复 `ENABLE_MAIL_GZIP=true` 时 `raw_blob` 无法写入 SQLite，恢复 gzip 邮件存储与读取测试
 - fix: |E2E Browser| 为本地 Docker 浏览器测试固定英文默认语言，并提升 passkey 浏览器流程的等待与清理稳定性，避免中文文案断言偏差和 WebAuthn 流程超时
+- fix: |本地 SMTP| 未配置 TLS 证书时同时禁用 `STARTTLS` 广告与命令本身，避免本地 SMTP 收件端回落到 `smtp-server` 的过期 localhost 测试证书，提升外部 MTA 投递兼容性
 - fix: |Admin| 管理员重置邮箱地址密码时改为前端 SHA-256 后提交，后端只接受并存储哈希值，避免该接口继续接收明文密码
 - fix: |Address| 管理员邮箱地址列表与用户绑定地址列表不再返回已存储的地址密码哈希值，避免列表接口暴露敏感字段
 - fix: |Address| 统一规范化配置域名、收件地址域名与前缀的空白和大小写，覆盖 `DOMAINS`、`DEFAULT_DOMAINS`、`USER_ROLES.domains`、随机子域名、转发规则、SMTP 与 `SEND_MAIL` 域名匹配，保留转发规则空域名 catch-all 行为，并明确空 `DEFAULT_DOMAINS` / 角色域名回退到 `DOMAINS` 的行为，避免大小写配置或入站收件域名导致创建、收件、转发或发信失败（issue #926）

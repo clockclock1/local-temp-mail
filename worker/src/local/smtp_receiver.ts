@@ -63,9 +63,14 @@ export const startLocalSmtpReceiver = async () => {
         || "localhost";
     const tlsOptions = await loadTlsOptions();
 
+    const disabledCommands = ["AUTH"];
+    if (!tlsOptions.tlsEnabled) {
+        disabledCommands.push("STARTTLS");
+    }
+
     const server = new SMTPServer({
         name: smtpHostname,
-        disabledCommands: ["AUTH"],
+        disabledCommands,
         authOptional: true,
         ...tlsOptions,
         onConnect(session, callback) {
