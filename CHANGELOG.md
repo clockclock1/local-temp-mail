@@ -15,6 +15,7 @@
 
 ### Bug Fixes
 
+- fix: |Docker Frontend| 将前端 `nginx` 反向代理改为使用 Docker 内置 DNS `127.0.0.11` 做运行时解析，避免 `backend` 容器尚未就绪时 `tempmail-frontend` 因启动期无法解析上游主机名而退出并持续重启
 - fix: |Docker Frontend| 为前端发布镜像构建阶段显式设置 `NODE_OPTIONS=--max-old-space-size=4096`，修复 `vite build` 在 Docker/GitHub Release 流水线中因 Node 堆内存不足导致前端容器镜像无法生成或启动部署的问题
 - fix: |E2E| 将 E2E Worker 容器切换到本地 `pnpm run local:all` 运行方式，新增 `.env.local` 夹具，修复 `e2e-runner` 入口脚本权限、Docker Compose 服务编排与本地 SMTP/IMAP 代理环境变量，确保本地 Docker 全量 Playwright 测试可直接跑通
 - fix: |本地运行时| 修复 `ENABLE_CREATE_ADDRESS_SUBDOMAIN_MATCH` 在本地模式下被强制默认开启的问题，使未配置时保持与 Worker 线上环境一致的“按设置回退”行为
