@@ -15,6 +15,7 @@
 
 ### Bug Fixes
 
+- fix: |Docker Frontend| Set `NODE_OPTIONS=--max-old-space-size=4096` for the frontend release image build stage so `vite build` no longer fails with Node heap OOM in Docker/GitHub Release pipelines, which previously prevented the frontend container image from being produced for deployment
 - fix: |E2E| Switch the E2E worker containers to the local `pnpm run local:all` runtime, add `.env.local` fixtures, and fix the `e2e-runner` entrypoint permissions, Docker Compose service wiring, and local SMTP/IMAP proxy envs so the full Playwright suite can run in local Docker
 - fix: |Local Runtime| Stop forcing `ENABLE_CREATE_ADDRESS_SUBDOMAIN_MATCH` to `true` in local mode so an unset value falls back to the same behavior as the production Worker runtime
 - fix: |Local SQLite| Add `ArrayBuffer` / typed-array to `Buffer` normalization in the local D1 adapter so `raw_blob` writes succeed when `ENABLE_MAIL_GZIP=true`, restoring gzip mail storage and readback tests
